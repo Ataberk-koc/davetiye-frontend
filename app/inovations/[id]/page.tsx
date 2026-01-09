@@ -17,11 +17,12 @@ interface Invitation {
   groom_surname: string;
   bride_name: string;
   bride_surname: string;
-  wedding_date: string; // Tarih ve Saat bilgisini içerir
+  wedding_date: string;
   event_type?: string;
   location?: string;
   description?: string | null;
   image_url: string; 
+  map_url?: string | null; // Harita Linki
 }
 
 interface Moment {
@@ -45,6 +46,9 @@ export default function InvitationDetail() {
   const [attendance, setAttendance] = useState<'coming' | 'not-coming' | null>(null);
   const [guestCount, setGuestCount] = useState<number | null>(null);
   const [message, setMessage] = useState<string>("");
+
+  // Harita Gösterimi
+  const [showMap, setShowMap] = useState(false);
 
   // Anı Defteri
   const [showMemories, setShowMemories] = useState(false);
@@ -111,7 +115,6 @@ export default function InvitationDetail() {
   };
   const getDayName = (d: string) => new Date(d).toLocaleDateString('tr-TR', { weekday: 'long' });
   const getFormattedDate = (d: string) => new Date(d).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  // Saat formatlama fonksiyonu
   const getFormattedTime = (d: string) => new Date(d).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 
   // --- ANI PAYLAŞIM ---
@@ -194,7 +197,29 @@ export default function InvitationDetail() {
   if (!invitation) return null;
 
   return (
-    <div className={`min-h-screen bg-white text-black relative selection:bg-black selection:text-white pb-20`}>
+    <div className={`min-h-screen bg-gradient-to-b from-white via-pink-50 to-white text-black relative selection:bg-black selection:text-white pb-20 overflow-hidden`}>
+      {/* Arka Plan Animasyon - Çiçek Yaprakları */}
+      <div className="fixed inset-0 pointer-events-none">
+        {[...Array(15)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute animate-petal"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `-10px`,
+              animation: `petal-fall ${8 + Math.random() * 4}s linear infinite`,
+              animationDelay: `${Math.random() * 5}s`,
+              opacity: 0.6
+            }}
+          >
+            <span className="text-pink-200 text-2xl">🌸</span>
+          </div>
+        ))}
+      </div>
+
+      {/* İçerik Katmanı */}
+      <div className="relative z-10">
+    
       {/* Bildirim */}
       {notification && (
         <div className={`fixed top-6 right-6 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium animate-slide-down ${notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}>{notification.message}</div>
@@ -212,7 +237,7 @@ export default function InvitationDetail() {
            </div>
         </div>
 
-        {/* ORTA GÖRSEL (API'den Gelen) */}
+        {/* ORTA GÖRSEL */}
         <div className="w-64 md:w-80 mx-auto my-6 animate-fade-in">
            {invitation.image_url ? (
              <Image 
@@ -228,19 +253,16 @@ export default function InvitationDetail() {
            )}
         </div>
 
-        {/* --- ETKİNLİK DETAYLARI (SAAT EKLENDİ) --- */}
+        {/* ETKİNLİK DETAYLARI */}
         <div className="w-full text-center mb-16 animate-slide-up opacity-0" style={{ animationDelay: '0.5s' }}>
-            {/* Başlık (Düğün/Nişan vs) */}
             <h3 className={`${sansFont.className} font-bold text-2xl uppercase tracking-[0.2em] mb-3`}>
               {invitation.event_type || "DÜĞÜN"}
             </h3>
             
-            {/* Tarih */}
             <p className={`${sansFont.className} font-bold text-xl tracking-widest`}>
               {getFormattedDate(invitation.wedding_date)}
             </p>
 
-            {/* YENİ EKLENEN SAAT ALANI */}
             <div className="flex justify-center items-center gap-2 mt-2 mb-1">
                <span className={`${sansFont.className} text-sm font-medium uppercase tracking-widest text-gray-500`}>Saat</span>
                <span className={`${sansFont.className} text-lg font-semibold tracking-wide text-gray-800`}>
@@ -248,20 +270,19 @@ export default function InvitationDetail() {
                </span>
             </div>
 
-            {/* Gün İsmi (El Yazısı) */}
             <p className={`${signatureFont.className} text-5xl md:text-6xl my-4 transform -rotate-2`}>
               {getDayName(invitation.wedding_date)}
             </p>
 
-            {/* Mekan */}
             <p className={`${serifFont.className} text-2xl md:text-3xl uppercase font-bold text-gray-900`}>
               {invitation.location || "MEKAN BİLGİSİ"}
             </p>
         </div>
 
-        {/* BUTONLAR (Aynı) */}
+        {/* --- BUTONLAR --- */}
         <div className="w-full max-w-md mx-auto space-y-4 pb-12">
            
+           {/* 1. LCV FORM */}
            <button onClick={() => setShowRSVP(!showRSVP)} className={`w-full py-4 border border-black uppercase text-xs tracking-[0.2em] hover:bg-black hover:text-white transition-all duration-500 ${sansFont.className}`}>
              {showRSVP ? 'Formu Kapat' : 'Katılım Durumu Bildir'}
            </button>
@@ -278,6 +299,7 @@ export default function InvitationDetail() {
              </div>
            )}
 
+           {/* 2. ANI DEFTERİ */}
            <button 
              onClick={() => setShowMemories(!showMemories)}
              className={`w-full py-4 border border-pink-300 text-pink-500 uppercase text-xs tracking-[0.2em] hover:bg-pink-500 hover:text-white transition-all duration-500 ${sansFont.className}`}
@@ -357,9 +379,61 @@ export default function InvitationDetail() {
              </div>
            )}
 
+           {/* 3. YOL TARİFİ AL (EN ALTTA) */}
+           {invitation.map_url && (
+             <>
+               <button 
+                 onClick={() => setShowMap(!showMap)}
+                 className={`w-full py-4 border border-gray-400 text-gray-700 uppercase text-xs tracking-[0.2em] hover:bg-gray-800 hover:text-white transition-all duration-500 ${sansFont.className}`}
+               >
+                 {showMap ? 'Haritayı Gizle' : 'Yol Tarifi Al'}
+               </button>
+
+               {showMap && (
+                 <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm animate-slide-up">
+                   {/* Önizleme Haritası (Iframe) */}
+                   <div className="w-full h-56 bg-gray-200 rounded-lg mb-4 relative overflow-hidden shadow-inner">
+                      <iframe 
+                        width="100%" 
+                        height="100%" 
+                        frameBorder="0" 
+                        scrolling="no" 
+                        src={`https://maps.google.com/maps?q=${encodeURIComponent(invitation.location || "Turkey")}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                        className="w-full h-full opacity-90 hover:opacity-100 transition-opacity"
+                        title="Harita Önizleme"
+                      ></iframe>
+                   </div>
+                   
+                   {/* Asıl Yönlendirme Butonu */}
+                   <a 
+                     href={invitation.map_url} 
+                     target="_blank" 
+                     rel="noopener noreferrer"
+                     className="flex items-center justify-center gap-2 w-full bg-blue-600 text-white py-3 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-blue-700 hover:scale-[1.02] transition-transform shadow-md"
+                   >
+                     <span>Google Haritalarda Aç</span>
+                     <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                   </a>
+                 </div>
+               )}
+             </>
+           )}
+
         </div>
       </div>
+      </div>
       <style jsx global>{`
+        @keyframes petal-fall {
+          0% {
+            transform: translateY(0);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(100vh);
+            opacity: 0;
+          }
+        }
+        .animate-petal { animation: petal-fall 10s linear infinite; }
         .animate-fade-in { animation: fadeIn 1.5s ease-out forwards; }
         .animate-slide-up { animation: slideUp 1s ease-out forwards; }
         .animate-slide-down { animation: slideDown 0.5s ease-out forwards; }
