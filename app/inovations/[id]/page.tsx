@@ -17,11 +17,11 @@ interface Invitation {
   groom_surname: string;
   bride_name: string;
   bride_surname: string;
-  wedding_date: string;
+  wedding_date: string; // Tarih ve Saat bilgisini içerir
   event_type?: string;
   location?: string;
   description?: string | null;
-  image_url: string; // API'den gelen resim URL'i
+  image_url: string; 
 }
 
 interface Moment {
@@ -40,13 +40,13 @@ export default function InvitationDetail() {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // RSVP Formu (Açılır/Kapanır)
+  // RSVP Formu
   const [showRSVP, setShowRSVP] = useState(false);
   const [attendance, setAttendance] = useState<'coming' | 'not-coming' | null>(null);
   const [guestCount, setGuestCount] = useState<number | null>(null);
   const [message, setMessage] = useState<string>("");
 
-  // Anı Defteri (Açılır/Kapanır - YENİ)
+  // Anı Defteri
   const [showMemories, setShowMemories] = useState(false);
 
   // Konuk Anı Albümü
@@ -111,6 +111,7 @@ export default function InvitationDetail() {
   };
   const getDayName = (d: string) => new Date(d).toLocaleDateString('tr-TR', { weekday: 'long' });
   const getFormattedDate = (d: string) => new Date(d).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  // Saat formatlama fonksiyonu
   const getFormattedTime = (d: string) => new Date(d).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 
   // --- ANI PAYLAŞIM ---
@@ -211,7 +212,7 @@ export default function InvitationDetail() {
            </div>
         </div>
 
-        {/* --- DÜZELTME 1: API'DEN GELEN ORTA GÖRSEL --- */}
+        {/* ORTA GÖRSEL (API'den Gelen) */}
         <div className="w-64 md:w-80 mx-auto my-6 animate-fade-in">
            {invitation.image_url ? (
              <Image 
@@ -223,28 +224,48 @@ export default function InvitationDetail() {
                priority 
              />
            ) : (
-             // Yedek görsel (eğer API'den resim gelmezse)
              <Image src="/indir.jpg" alt="Yedek" width={320} height={240} className="w-full h-auto rounded-xl shadow-lg" />
            )}
         </div>
 
-        {/* ETKİNLİK DETAYLARI */}
+        {/* --- ETKİNLİK DETAYLARI (SAAT EKLENDİ) --- */}
         <div className="w-full text-center mb-16 animate-slide-up opacity-0" style={{ animationDelay: '0.5s' }}>
-            <h3 className={`${sansFont.className} font-bold text-2xl uppercase tracking-[0.2em] mb-3`}>{invitation.event_type || "DÜĞÜN"}</h3>
-            <p className={`${sansFont.className} font-bold text-xl tracking-widest`}>{getFormattedDate(invitation.wedding_date)}</p>
-            <p className={`${signatureFont.className} text-5xl md:text-6xl my-4 transform -rotate-2`}>{getDayName(invitation.wedding_date)}</p>
-            <p className={`${serifFont.className} text-2xl md:text-3xl uppercase font-bold text-gray-900`}>{invitation.location || "MEKAN BİLGİSİ"}</p>
+            {/* Başlık (Düğün/Nişan vs) */}
+            <h3 className={`${sansFont.className} font-bold text-2xl uppercase tracking-[0.2em] mb-3`}>
+              {invitation.event_type || "DÜĞÜN"}
+            </h3>
+            
+            {/* Tarih */}
+            <p className={`${sansFont.className} font-bold text-xl tracking-widest`}>
+              {getFormattedDate(invitation.wedding_date)}
+            </p>
+
+            {/* YENİ EKLENEN SAAT ALANI */}
+            <div className="flex justify-center items-center gap-2 mt-2 mb-1">
+               <span className={`${sansFont.className} text-sm font-medium uppercase tracking-widest text-gray-500`}>Saat</span>
+               <span className={`${sansFont.className} text-lg font-semibold tracking-wide text-gray-800`}>
+                 {getFormattedTime(invitation.wedding_date)}
+               </span>
+            </div>
+
+            {/* Gün İsmi (El Yazısı) */}
+            <p className={`${signatureFont.className} text-5xl md:text-6xl my-4 transform -rotate-2`}>
+              {getDayName(invitation.wedding_date)}
+            </p>
+
+            {/* Mekan */}
+            <p className={`${serifFont.className} text-2xl md:text-3xl uppercase font-bold text-gray-900`}>
+              {invitation.location || "MEKAN BİLGİSİ"}
+            </p>
         </div>
 
-        {/* BUTONLAR */}
+        {/* BUTONLAR (Aynı) */}
         <div className="w-full max-w-md mx-auto space-y-4 pb-12">
            
-           {/* LCV Butonu */}
            <button onClick={() => setShowRSVP(!showRSVP)} className={`w-full py-4 border border-black uppercase text-xs tracking-[0.2em] hover:bg-black hover:text-white transition-all duration-500 ${sansFont.className}`}>
              {showRSVP ? 'Formu Kapat' : 'Katılım Durumu Bildir'}
            </button>
 
-           {/* LCV Formu */}
            {showRSVP && (
              <div className="bg-gray-50 p-8 rounded-xl shadow animate-slide-up">
                 <div className="flex justify-center gap-4 mb-6">
@@ -257,15 +278,13 @@ export default function InvitationDetail() {
              </div>
            )}
 
-           {/* --- DÜZELTME 2: AÇILIP KAPANABİLİR ANI DEFTERİ BUTONU --- */}
            <button 
              onClick={() => setShowMemories(!showMemories)}
-             className={`w-full py-4 border border-black uppercase text-xs tracking-[0.2em] hover:bg-black hover:text-white transition-all duration-500 ${sansFont.className}`}
+             className={`w-full py-4 border border-pink-300 text-pink-500 uppercase text-xs tracking-[0.2em] hover:bg-pink-500 hover:text-white transition-all duration-500 ${sansFont.className}`}
            >
              {showMemories ? 'Anı Defterini Kapat' : 'Anı Defterini Aç'}
            </button>
 
-           {/* --- ANI PAYLAŞIM ALANI (Sadece showMemories true ise görünür) --- */}
            {showMemories && (
              <div className="bg-white border border-gray-100 rounded-xl p-6 mt-4 shadow-sm animate-slide-up">
                <div className="flex flex-col items-center mb-6">
@@ -301,7 +320,6 @@ export default function InvitationDetail() {
                      <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileSelect} className="hidden" />
                    </label>
 
-                   {/* --- DÜZELTME 3: PEMBE BUTON --- */}
                    <button 
                      type="submit" 
                      disabled={isUploadingAlbum}
@@ -312,7 +330,6 @@ export default function InvitationDetail() {
                  </div>
                </form>
 
-               {/* Timeline (Anılar) */}
                <div className="mt-12 space-y-8">
                  {uploadedMoments.map((moment) => (
                    <div key={moment.id} className="flex flex-col bg-white">

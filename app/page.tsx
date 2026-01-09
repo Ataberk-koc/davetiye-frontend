@@ -69,10 +69,10 @@ export default function Home() {
       {invitations.map((inv) => (
         <div key={inv.id} className="relative z-10 flex flex-col items-center p-6 w-full max-w-md animate-fade-in">
           
-          {/* 1. GÖRSEL: Line Art Floral Heart */}
+          {/* 1. GÖRSEL: API'den Gelen Resim */}
           <div className="w-full max-w-[320px] mb-8">
             <Image 
-              src="/indir.jpg"
+              src={inv.image_url || "/indir.jpg"} // BURASI DEĞİŞTİ: API'den gelen resim (yoksa yedek)
               alt="Davet Resmi"
               width={320}
               height={240}
@@ -106,7 +106,7 @@ export default function Home() {
             {/* El İmleci (Görseldeki gibi sağ altta) */}
             <div className="absolute -bottom-5 -right-5 pointer-events-none animate-bounce-gentle">
               <Image 
-                src="/indir.jpg"
+                src="/indir.jpg" // İkon olduğu için burayı ellemedim, API'den gelen ikon varsa burayı da inv.icon_url yapabiliriz.
                 alt="Click"
                 width={32}
                 height={32}
