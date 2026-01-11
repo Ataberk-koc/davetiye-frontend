@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Alex_Brush, Montserrat, Cormorant_Garamond } from 'next/font/google';
@@ -36,6 +36,17 @@ export default function InvitationDetail() {
   const params = useParams();
   const [invitation, setInvitation] = useState<Invitation | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  // Çiçek Yapraklarının Animasyon Değerlerini Memoize Et (Re-render sırasında değişmesin)
+  const petals = useMemo(() => {
+    return [...Array(15)].map((_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      duration: 8 + Math.random() * 4,
+      delay: Math.random() * 5,
+      opacity: 0.6
+    }));
+  }, []);
   
   // Müzik
   const [isPlaying, setIsPlaying] = useState(false);
@@ -200,16 +211,16 @@ export default function InvitationDetail() {
     <div className={`min-h-screen bg-gradient-to-b from-white via-pink-50 to-white text-black relative selection:bg-black selection:text-white pb-20 overflow-hidden`}>
       {/* Arka Plan Animasyon - Çiçek Yaprakları */}
       <div className="fixed inset-0 pointer-events-none">
-        {[...Array(15)].map((_, i) => (
+        {petals.map((petal) => (
           <div
-            key={i}
+            key={petal.id}
             className="absolute animate-petal"
             style={{
-              left: `${Math.random() * 100}%`,
+              left: `${petal.left}%`,
               top: `-10px`,
-              animation: `petal-fall ${8 + Math.random() * 4}s linear infinite`,
-              animationDelay: `${Math.random() * 5}s`,
-              opacity: 0.6
+              animation: `petal-fall ${petal.duration}s linear infinite`,
+              animationDelay: `${petal.delay}s`,
+              opacity: petal.opacity
             }}
           >
             <span className="text-pink-200 text-2xl">🌸</span>
