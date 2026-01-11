@@ -302,7 +302,7 @@ export default function InvitationDetail() {
            {/* 2. ANI DEFTERİ */}
            <button 
              onClick={() => setShowMemories(!showMemories)}
-             className={`w-full py-4 border border-pink-300 text-pink-500 uppercase text-xs tracking-[0.2em] hover:bg-pink-500 hover:text-white transition-all duration-500 ${sansFont.className}`}
+             className={`w-full py-4 border border-black uppercase text-xs tracking-[0.2em] hover:bg-black hover:text-white transition-all duration-500 ${sansFont.className}`}
            >
              {showMemories ? 'Anı Defterini Kapat' : 'Anı Defterini Aç'}
            </button>
@@ -384,7 +384,7 @@ export default function InvitationDetail() {
              <>
                <button 
                  onClick={() => setShowMap(!showMap)}
-                 className={`w-full py-4 border border-gray-400 text-gray-700 uppercase text-xs tracking-[0.2em] hover:bg-gray-800 hover:text-white transition-all duration-500 ${sansFont.className}`}
+                 className={`w-full py-4 border border-black uppercase text-xs tracking-[0.2em] hover:bg-black hover:text-white transition-all duration-500 ${sansFont.className}`}
                >
                  {showMap ? 'Haritayı Gizle' : 'Yol Tarifi Al'}
                </button>
